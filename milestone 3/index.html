@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editable Resume Builder</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <div class="form-section">
+            <h2>Editable Resume Builder</h2>
+            <div id="successMessage" class="success-message">Resume generated successfully!</div>
+
+                             <!-- form section -->
+            <form id="resumeForm">
+                <div class="form-group">
+                    
+                    <div class="profile-pic-container">
+                        <img id="profilePicPreview" class="profile-pic-preview" alt="Profile picture preview">
+                        <div id="profilePicPlaceholder" class="profile-pic-placeholder">
+                            Tap to upload photo
+                        </div>
+                    </div>
+                    <input type="file" id="imageInput" accept="image/*">
+                    <button type="button" class="image-upload-btn" onclick="document.getElementById('imageInput').click()">
+                        Upload Photo
+                    </button>
+                </div>
+
+                <div class="form-group">
+                    <label>Personal Information:</label>
+                    <input type="text" id="fullName" placeholder="Full Name" required>
+                    <input type="email" id="email" placeholder="Email" required>
+                    <input type="tel" id="phone" placeholder="Phone" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Professional Summary:</label>
+                    <textarea id="summary" placeholder="Your professional summary" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Experience:</label>
+                    <input type="text" id="company" placeholder="Company Name" required>
+                    <input type="text" id="position" placeholder="Position" required>
+                    <input type="text" id="duration" placeholder="Duration" required>
+                    <textarea id="description" placeholder="Job Description" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Education:</label>
+                    <input type="text" id="school" placeholder="School/University" required>
+                    <input type="text" id="degree" placeholder="Degree" required>
+                    <input type="text" id="year" placeholder="Year" required>
+                </div>
+
+                <button type="submit">Generate Resume</button>
+            </form>
+        </div>
+
+        <div class="preview-section" id="resumePreview">
+            <!-- Preview will be generated here -->
+        </div>
+    </div>
+
+    <script>
+        // Handle image upload preview
+        const imageInput = document.getElementById('imageInput');
+        const profilePicPreview = document.getElementById('profilePicPreview');
+        const profilePicPlaceholder = document.getElementById('profilePicPlaceholder');
+        let imageBase64 = '';
+
+        // Add touch support for mobile devices
+        document.querySelector('.profile-pic-container').addEventListener('touchend', function(e) {
+            e.preventDefault();
+            document.getElementById('imageInput').click();
+        });
+
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imageBase64 = e.target.result;
+                    profilePicPreview.src = imageBase64;
+                    profilePicPreview.style.display = 'block';
+                    profilePicPlaceholder.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Form submission
+        document.getElementById('resumeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Add loading state
+            this.classList.add('loading');
+            
+            // Get all the values
+            const fullName = document.getElementById('fullName').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const summary = document.getElementById('summary').value;
+            const company = document.getElementById('company').value;
+            const position = document.getElementById('position').value;
+            const duration = document.getElementById('duration').value;
+            const description = document.getElementById('description').value;
+            const school = document.getElementById('school').value;
+            const degree = document.getElementById('degree').value;
+            const year = document.getElementById('year').value;
+
+            // Generate the resume HTML
+            const resumeHTML = `
+                <div class="resume-header">
+                    ${imageBase64 ? `<img src="${imageBase64}" alt="Profile Picture">` : ''}
+                    <div class="header-text">
+                        <h1>${fullName}</h1>
+                        <p>Email: ${email}</p>
+                        <p>Phone: ${phone}</p>
+                    </div>
+                </div>
+
+                <h2>Professional Summary</h2>
+                <p>${summary}</p>
+
+                <h2>Experience</h2>
+                <div class="experience">
+                    <h3>${position} at ${company}</h3>
+                    <p>${duration}</p>
+                    <p>${description}</p>
+                </div>
+
+                <h2>Education</h2>
+                <div class="education">
+                    <h3>${degree}</h3>
+                    <p>${school} - ${year}</p>
+                </div>
+            `;
+
+            // Update the preview section
+            document.getElementById('resumePreview').innerHTML = resumeHTML;
+
+            // Remove loading state
+            this.classList.remove('loading');
+
+            // Show success message
+            const successMessage = document.getElementById('successMessage');
+            successMessage.style.display = 'block';
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 3000);
+
+            // Scroll to preview section on mobile
+            if (window.innerWidth < 768) {
+                document.querySelector('.preview-section').scrollIntoView({ 
+                    behavior: 'smooth' 
+                });
+            }
+        });
+
+        // Handle resize events for responsive behavior
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 768) {
+                document.querySelector('.preview-section').style.removeProperty('scroll-behavior');
+            }
+        });
+    </script>
+</body>
+</html>
